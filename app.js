@@ -198,6 +198,6 @@ function checknotauth(req, res, next) {
 	return next()
 }
 
-app.listen(3030, '0.0.0.0', function () {
+app.listen(process.env.PORT_NO, '0.0.0.0', function () {
 	console.log('Listening to port:  ' + process.env.PORT_NO);
 });
