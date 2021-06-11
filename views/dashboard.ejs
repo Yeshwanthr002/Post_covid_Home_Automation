@@ -1,0 +1,152 @@
+<%- include("partials/header") %>
+<div class="container-fluid mt-5">
+	<div class="row">
+		<div class="col-md-4">
+			<h3 class="main text-center">Utilities</h3>
+			<div class="text-center">
+			<img src="https://img.icons8.com/ios/50/ffffff/doorbell.png">
+			<h5 class="main text">Doorbell: <%=door%> </h5></div>
+			<h3 class="main">Water tank level: <%= waterlvl %> cm</h3>
+			<h3 class="main">Energy units consumption: </h3>
+			<!-- <div class="container text-center"> -->
+				<div class="jumbotron text-center">
+					<b>Current units consumption: </b><span id="showUnits"></span><br/>
+					<b>Updated at: </b><span id="updateTime"></span>
+				</div>
+			<!-- </div> -->
+			<button>
+				<a href="/visualize"> visualize</a>
+			</button>
+		</div>
+		<div class="col-md-4" style="text-align: center;">
+			<h3 class="main">Living room</h3>
+			<div class="row">
+				<div class="col-md-6">
+					<i class="far fa-lightbulb fa-5x"></i>
+				</div>
+				<div class="col-md-6">
+					<% if (!state){%>
+						<form action="/lighton" method="post" >
+							<input type="image" src="https://img.icons8.com/wired/64/2266EE/fan-speed.png"/>
+						</form>
+					<%} else {%>
+						<form action="/lighton" method="post" >
+							<input type="image" src= "https://img.icons8.com/wired/64/ffffff/fan-speed.png"/> 
+						</form>
+					<%}%>	
+				</div>
+			</div>
+			<h3 class="main">Master bedroom</h3>
+			<div class="row">
+				<div class="col-md-4">
+					<i class="far fa-lightbulb fa-5x"></i>
+				</div>
+				<div class="col-md-4">
+					<img src="https://img.icons8.com/pastel-glyph/64/ffffff/air-conditioner--v2.png">
+				</div>
+				<div class="col-md-4">
+					<% if (!state){%>
+						<form action="/lighton" method="post" >
+							<input type="image" src="https://img.icons8.com/wired/64/2266EE/fan-speed.png"/>
+						</form>
+					<%}else {%>
+						<form action="/lighton" method="post" >
+							<input type="image" src= "https://img.icons8.com/wired/64/ffffff/fan-speed.png"/> 
+						</form>
+					<%}%>
+				</div>
+			</div>
+			<h3 class="main">Kitchen</h3>
+			<div class="row">
+				<div class="col-md-6">
+					<img src="https://img.icons8.com/dotty/80/ffffff/kitchen-light.png"/>
+				</div>
+				<div class="col-md-6">
+					<% if (!state){%>
+						<form action="/lighton" method="post" >
+							<input type="image" src="https://img.icons8.com/wired/64/2266EE/fan-speed.png"/>
+						</form>
+					<%}else {%>
+						<form action="/lighton" method="post" >
+							<input type="image" src= "https://img.icons8.com/wired/64/ffffff/fan-speed.png"/> 
+						</form>
+					<%}%>
+				</div>
+				Gas level
+			</div>
+		</div>
+		<div class="col-md-4" style="text-align: left;">
+			<h4 class="main" hidden>Address: <span id="addr"><%= currentUser.address %></span></h4>
+			<h5 class="geo">Latitude: <span id="lat"></span></h5>
+			<h5 class="geo">Longitude: <span id="lon"></span></h5>
+			<h5 class="geo">Pincode: <span id="zip"></span></h5>
+			<h4 class="main"> Temperature: <span id="temp"></span>&deg;C</h4>
+			<h4 class="main">Humidity:</h4>
+			<div class="progress">
+				<div id="humidity" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 50%;" aria-valuemin="0" aria-valuemax="100"><span id="humid"></span></div>
+			</div>
+			<h5 class="main" style="color: rgb(50,168,164);">Weather description: <span id="desc"></span></h5>
+			<div id="mapid"></div>
+		</div>
+	</div>
+	<canvas id="line-chart"></canvas>
+</div>
+
+<!-- <a href='https://chart-studio.plotly.com/~yeshwanthr002/0' target="_blank" rel="noopener noreferrer">Plot</a> -->
+<script>
+	var n=1;
+    function updateLatestPrice() {
+        fetch('https://api.thingspeak.com/channels/1337727/fields/1.json?api_key=MDQCVOCXPES42H3U&results=1')
+        .then(response => {
+            return response.json();
+        })
+        .then(json => {
+            console.log(json.feeds[0].field1);
+            document.getElementById("showUnits").innerHTML= json.feeds[0].field1;
+            var strDate= new Date(json.feeds[0].created_at);
+            strDate= strDate.toString();
+            document.getElementById("updateTime").innerHTML= strDate.substring(0,24);
+        })
+        n+=1;
+    }
+    setInterval(updateLatestPrice, 3000);
+	var address= document.getElementById("addr").innerText;
+	fetch('https://geocode.search.hereapi.com/v1/geocode?q='+address+'&apiKey=pTknJVKcfVNAUqZa_KiOUsYUaoQF5k5jdcvpSI4lgp8')
+	.then(response => {
+		return response.json();
+	})
+	.then(json => {
+		console.log(json['items'][0]);
+		document.getElementById("lat").innerText= json['items'][0]['position']['lat'];
+		document.getElementById("lon").innerText= json['items'][0]['position']['lng'];
+		document.getElementById("zip").innerText= json['items'][0]['address']['postalCode'];
+		var lat= document.getElementById("lat").innerHTML;
+		var long= document.getElementById("lon").innerHTML;
+		address= address+'<br/>'+json['items'][0]['address']['county']+", "+json['items'][0]['address']['state']+", "+json['items'][0]['address']['countryName'];
+		// console.log(lat,long);
+		var mymap = L.map('mapid').setView([lat, long], 13);
+		L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+			maxZoom: 18,
+			id: 'mapbox/streets-v11',
+			tileSize: 512,
+			zoomOffset: -1,
+			accessToken: 'pk.eyJ1Ijoic2FpYXJ1LTAwOSIsImEiOiJja2NiaXZpcHAxdGhoMnJsamxmNndjOHBkIn0.uMufE7H_I6Wdb6RWysVP3g'
+		}).addTo(mymap);
+		var marker = L.marker([lat, long]).addTo(mymap);
+		marker.bindTooltip(address);
+		fetch('https://api.openweathermap.org/data/2.5/weather?lat='+lat+'&lon='+long+'&appid=a8ec5c91d3ace5f4332f2b33a1339bbd')
+		.then(response => {
+			return response.json();
+		})
+		.then(json => {
+			console.log(json);
+			var temp= json.main.temp-273.15;
+			document.getElementById("temp").innerText= temp.toFixed(2);
+			document.getElementById("humid").innerText= json.main.humidity+"%";
+			document.getElementById("humidity").style.width= json.main.humidity.toString()+"%";
+			document.getElementById("desc").innerText= json.weather[0].description;
+		})
+	})
+
+</script>
+<%- include("partials/footer") %>

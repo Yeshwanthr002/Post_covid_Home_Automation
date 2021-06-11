@@ -1,0 +1,56 @@
+<%- include("partials/header") %>
+<head>
+    <script src="https://cdn.plot.ly/plotly-2.0.0-rc.3.min.js"></script>
+</head>
+<div class="container-fluid mt-5">
+    <button>
+        <a href='/dashboard'>Back</a>
+    </button>
+    <div id ='Chart'></div>
+    <script >
+        layout = {
+                    title: 'Water Usage',
+                    yaxis: {
+                        title: {
+                        text: 'Water level',
+                        font: {
+                            family: 'Courier New, monospace',
+                            size: 18,
+                            color: '#7f7f7f'
+                        }
+                        },
+                    },
+                    xaxis: {
+                        title: {
+                        text: 'Date',
+                        font: {
+                            family: 'Courier New, monospace',
+                            size: 18,
+                            color: '#7f7f7f'
+                        }
+                        }
+                    },
+                        showlegend: true
+    };
+                var graphDiv = document.getElementById('Chart')
+               var xd=[]
+               var xx=[]
+               <%for(var i =0;i<plotx.length;i++){%>
+                    xd=new Date('<%=plotx[i]%>')
+                    xx.push(xd.toISOString())
+
+                <%}%>
+               
+    var data1 = [ 
+  {
+     
+    x:xx ,
+    y: [<%=ploty%>]
+  }
+];
+
+    TESTER = document.getElementById('Chart');
+        Plotly.newPlot( TESTER, data1, layout);
+    </script>
+</div>
+<%- include("partials/footer") %>

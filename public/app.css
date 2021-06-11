@@ -1,0 +1,44 @@
+body {
+  background-color: rgb(0, 0, 0);
+}
+.main {
+  color: orange;
+}
+.container {
+  text-align: center;
+}
+.container2 {
+  padding-top: 10%;
+  padding-left: 10%;
+}
+.progress {
+  height: 25px;
+}
+i:hover {
+  color: blue;
+}
+.navbar-brand {
+  font-family: "Fascinate", cursive;
+  font-size: 30px;
+}
+#appname {
+  color: rgb(0, 128, 128);
+}
+#mapid {
+  height: 350px;
+}
+.nav-link {
+  color: rgb(243, 17, 62);
+  background-color: darkgray;
+  font-size: 24px;
+}
+.data {
+  font-size: 18px;
+}
+.geo {
+  font-family: "Orbitron", sans-serif;
+  color: rgb(50, 168, 82);
+}
+.jumbotron {
+  background: skyblue;
+}
